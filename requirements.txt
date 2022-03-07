@@ -1,0 +1,17 @@
+asgiref==3.5.0
+certifi==2021.10.8
+charset-normalizer==2.0.12
+convertapi==1.4.0
+Django==4.0.3
+django-filter==21.1
+djangorestframework==3.13.1
+idna==3.3
+Markdown==3.3.6
+packaging==21.3
+Pillow==9.0.1
+pyparsing==3.0.7
+pytesseract==0.3.9
+pytz==2021.3
+requests==2.27.1
+sqlparse==0.4.2
+urllib3==1.26.8
