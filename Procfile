@@ -1,1 +1,1 @@
-web: gunicorn core.wsgi --log-file -
+web: python manage.py runserver 5000
