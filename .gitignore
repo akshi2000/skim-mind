@@ -1,3 +1,6 @@
+<<<<<<< HEAD
 __pycache__/
 db.sqlite3
+=======
+>>>>>>> c1e036b (Fixed Heroku Deploy Issues - 11)
 .vscode/
