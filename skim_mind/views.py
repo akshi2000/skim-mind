@@ -41,7 +41,7 @@ def stream_for_text(request):
     req_body = request.data
     text = req_body['text']
     data = list(text.replace('\n', ' ').split())
-    resp = []
+    resp = ["3", "2", "1"]
     for word in data:
         if word in mostUsedWords:    
             resp.append({'word': word, 'factor' : 0.4}) 
@@ -65,7 +65,7 @@ def stream_for_pdf(request):
         with open('temp.txt', 'r') as text_file:
             data = list(text_file.read().replace('\n', ' ').split())
         default_storage.delete(file_name)
-        resp = []
+        resp = ["3", "2", "1"]
         for word in data:
             if word in mostUsedWords:    
                 resp.append({'word': word, 'factor' : 0.4}) 
@@ -96,7 +96,7 @@ def stream_for_image(request):
         img = img.convert('1')
         img.save('temp2.jpg')
         data = pytesseract.image_to_string(Image.open('temp2.jpg'), lang='eng').split()
-        resp = []
+        resp = ["3", "2", "1"]
         for word in data:
             if word in mostUsedWords:    
                 resp.append({'word': word, 'factor' : 0.4}) 
