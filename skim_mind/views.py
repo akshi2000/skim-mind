@@ -16,6 +16,19 @@ convertapi.api_secret = API_SECRET
 from django.core.files.storage import default_storage
 from django.core.files.base import ContentFile
 
+mostUsedWords = []
+
+def loadWords():
+    if(len(mostUsedWords) > 0):
+        return
+    try:
+        print(os.getcwd())
+        with open('mostUsedWords.txt', 'r') as text_file:
+            data = list(text_file.read().replace('\n', ' ').split())
+            for word in data:
+                mostUsedWords.append(word)
+    except:
+        print("Couldn't Load Words")
 
 @api_view(('GET',))
 def test(request):
@@ -24,16 +37,21 @@ def test(request):
 
 @api_view(('POST',))
 def stream_for_text(request):
+    loadWords()
     req_body = request.data
     text = req_body['text']
     data = list(text.replace('\n', ' ').split())
     resp = []
     for word in data:
-        resp.append({'word': word, 'factor' : 1}) 
+        if word in mostUsedWords:    
+            resp.append({'word': word, 'factor' : 0.8}) 
+        else:
+            resp.append({'word': word, 'factor' : 1}) 
     return Response(resp)
 
 @api_view(('POST',))
 def stream_for_pdf(request):
+    loadWords()
     file = request.FILES['pdf']
     file_name = default_storage.save(file.name, ContentFile(file.read()))
     file_url = default_storage.url(file_name)
@@ -41,7 +59,6 @@ def stream_for_pdf(request):
         convertapi.convert('txt', {'File': os.getcwd() + file_url}, from_format = 'pdf').save_files('temp.txt')
         with open('temp.txt', 'r') as text_file:
             data = list(text_file.read().replace('\n', ' ').split())
-        print(data)
         default_storage.delete(file_name)
         resp = []
         for word in data:
@@ -54,6 +71,7 @@ def stream_for_pdf(request):
 
 @api_view(('POST',))
 def stream_for_image(request):
+    loadWords()
     file = request.FILES['image']
     file_name = default_storage.save(file.name, ContentFile(file.read()))
     file_url = default_storage.url(file_name)
