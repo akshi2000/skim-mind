@@ -85,6 +85,7 @@ def stream_for_image(request):
         img = img.convert('1')
         img.save('temp2.jpg')
         print("temp2.jpg saved")
+        
         data = pytesseract.image_to_string(Image.open('temp2.jpg'), lang='eng').split()
         print("GENERATED TEXT")
         resp = []
