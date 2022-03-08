@@ -79,7 +79,7 @@ def stream_for_pdf(request):
         return Response(resp)
     except:
         default_storage.delete(file_name)
-        return Response(status=500)
+        return Response(data="File wasn't uploaded correctly!", status=500)
     
 
 @api_view(('POST',))
@@ -111,5 +111,5 @@ def stream_for_image(request):
         return Response(resp)
     except:
         default_storage.delete(file_name)
-        return Response(status=500)
+        return Response(data="File wasn't uploaded correctly!" ,status=500)
 
