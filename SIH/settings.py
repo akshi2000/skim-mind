@@ -26,7 +26,18 @@ SECRET_KEY = 'django-insecure-i+u1sp+u(1($jlj&+e8x(3&bm&s(a72aepz3&ie13%h=x#z+np
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    '127.0.0.1',
+    'https://skim-mind.herokuapp.com',
+]
+
+
+
+CORS_ORIGIN_WHITELIST = (
+    'http://127.0.0.1:5500',
+    'http://127.0.0.1:8000',
+    'https://skim-mind.herokuapp.com',
+)
 
 
 # Application definition
