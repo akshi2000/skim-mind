@@ -29,9 +29,9 @@ DEBUG = False
 ALLOWED_HOSTS = [
     '127.0.0.1',
     'https://skim-mind.herokuapp.com',
+    'http://skim-mind.herokuapp.com',
+    ".herokuapp.com", 
 ]
-
-
 
 CORS_ORIGIN_WHITELIST = (
     'http://127.0.0.1:5500',
