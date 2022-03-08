@@ -79,11 +79,14 @@ def stream_for_image(request):
         print(file_name)
         img = Image.open(os.getcwd() + file_url) # the second one 
         img = img.filter(ImageFilter.MedianFilter())
+        print("opened image")
         enhancer = ImageEnhance.Contrast(img)
         img = enhancer.enhance(2)
         img = img.convert('1')
         img.save('temp2.jpg')
+        print("temp2.jpg saved")
         data = pytesseract.image_to_string(Image.open('temp2.jpg'), lang='eng').split()
+        print("GENERATED TEXT")
         resp = []
         for word in data:
             resp.append({'word': word, 'factor' : 1}) 
