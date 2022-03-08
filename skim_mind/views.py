@@ -91,9 +91,9 @@ def stream_for_image(request):
     try:
         img = Image.open(os.getcwd() + file_url) # the second one 
         img = img.filter(ImageFilter.MedianFilter())
-        enhancer = ImageEnhance.Contrast(img)
-        img = enhancer.enhance(2)
-        img = img.convert('1')
+        # enhancer = ImageEnhance.Contrast(img)
+        # img = enhancer.enhance(2)
+        # img = img.convert('1')
         img.save('temp2.jpg')
         data = pytesseract.image_to_string(Image.open('temp2.jpg'), lang='eng').split()
         resp = []
