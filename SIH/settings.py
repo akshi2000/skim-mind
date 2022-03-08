@@ -39,7 +39,7 @@ CORS_ORIGIN_WHITELIST = (
     'https://skim-mind.herokuapp.com',
 )
 
-
+CORS_ORIGIN_ALLOW_ALL = True
 # Application definition
 
 INSTALLED_APPS = [
@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'skim_mind.apps.SkimMindConfig',
+    'corsheaders',
 ]
 
 MIDDLEWARE = [
