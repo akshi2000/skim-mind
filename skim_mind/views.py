@@ -44,9 +44,13 @@ def stream_for_text(request):
     resp = []
     for word in data:
         if word in mostUsedWords:    
-            resp.append({'word': word, 'factor' : 0.3}) 
-        else:
-            resp.append({'word': word, 'factor' : 0.5}) 
+                resp.append({'word': word, 'factor' : 0.3}) 
+            else:
+                extra = 0
+                if len(word) > 5:
+                    extra = len(word)/8
+                    extra /= 10
+                resp.append({'word': word, 'factor' : 0.5 + extra}) 
     return Response(resp)
 
 @api_view(('POST',))
@@ -65,7 +69,11 @@ def stream_for_pdf(request):
             if word in mostUsedWords:    
                 resp.append({'word': word, 'factor' : 0.3}) 
             else:
-                resp.append({'word': word, 'factor' : 0.5}) 
+                extra = 0
+                if len(word) > 5:
+                    extra = len(word)/8
+                    extra /= 10
+                resp.append({'word': word, 'factor' : 0.5 + extra}) 
         return Response(resp)
     except:
         default_storage.delete(file_name)
