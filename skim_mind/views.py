@@ -47,9 +47,8 @@ def stream_for_text(request):
             resp.append({'word': word, 'factor' : 0.4}) 
         else:
             extra = 0
-            # if len(word) > 5:
-            #     extra = len(word)/4
-            #     extra /= 10
+            if(word[-1] == '.'):
+                extra = 0.2
             resp.append({'word': word, 'factor' : 0.5 + extra}) 
     return Response(resp)
 
@@ -70,10 +69,9 @@ def stream_for_pdf(request):
                 resp.append({'word': word, 'factor' : 0.4}) 
             else:
                 extra = 0
-                # if len(word) > 5:
-                #     extra = len(word)/4
-                #     extra /= 10
-                resp.append({'word': word, 'factor' : 0.5 + extra}) 
+                if(word[-1] == '.'):
+                    extra = 0.2
+                resp.append({'word': word, 'factor' : 0.5 + extra})
         return Response(resp)
     except:
         default_storage.delete(file_name)
@@ -100,10 +98,9 @@ def stream_for_image(request):
                 resp.append({'word': word, 'factor' : 0.4}) 
             else:
                 extra = 0
-                # if len(word) > 5:
-                #     extra = len(word)/4
-                #     extra /= 10
-                resp.append({'word': word, 'factor' : 0.5 + extra}) 
+                if(word[-1] == '.'):
+                    extra = 0.2
+                resp.append({'word': word, 'factor' : 0.5 + extra})
         default_storage.delete(file_name)
         return Response(resp)
     except:
