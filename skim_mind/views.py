@@ -44,9 +44,9 @@ def stream_for_text(request):
     resp = []
     for word in data:
         if word in mostUsedWords:    
-            resp.append({'word': word, 'factor' : 0.8}) 
+            resp.append({'word': word, 'factor' : 0.3}) 
         else:
-            resp.append({'word': word, 'factor' : 1}) 
+            resp.append({'word': word, 'factor' : 0.5}) 
     return Response(resp)
 
 @api_view(('POST',))
@@ -62,7 +62,10 @@ def stream_for_pdf(request):
         default_storage.delete(file_name)
         resp = []
         for word in data:
-            resp.append({'word': word, 'factor' : 1}) 
+            if word in mostUsedWords:    
+                resp.append({'word': word, 'factor' : 0.3}) 
+            else:
+                resp.append({'word': word, 'factor' : 0.5}) 
         return Response(resp)
     except:
         default_storage.delete(file_name)
@@ -76,21 +79,23 @@ def stream_for_image(request):
     file_name = default_storage.save(file.name, ContentFile(file.read()))
     file_url = default_storage.url(file_name)
     try:
-        print(file_name)
         img = Image.open(os.getcwd() + file_url) # the second one 
         img = img.filter(ImageFilter.MedianFilter())
-        print("opened image")
         enhancer = ImageEnhance.Contrast(img)
         img = enhancer.enhance(2)
         img = img.convert('1')
         img.save('temp2.jpg')
-        print("temp2.jpg saved")
-        
         data = pytesseract.image_to_string(Image.open('temp2.jpg'), lang='eng').split()
-        print("GENERATED TEXT")
         resp = []
         for word in data:
-            resp.append({'word': word, 'factor' : 1}) 
+            if word in mostUsedWords:    
+                resp.append({'word': word, 'factor' : 0.3}) 
+            else:
+                extra = 0
+                if len(word) > 5:
+                    extra = len(word)/8
+                    extra /= 10
+                resp.append({'word': word, 'factor' : 0.5 + extra}) 
         default_storage.delete(file_name)
         return Response(resp)
     except:
