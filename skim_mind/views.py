@@ -4,7 +4,7 @@ import PyPDF2
 import pytesseract
 from PIL import Image
 
-from .modules import loadWords, getReturnResponse
+from .modules import getReturnResponse
 
 @api_view(('GET',))
 def test(request):
