@@ -1,34 +1,10 @@
-from urllib import request, response
-from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
-from django.shortcuts import render
 from rest_framework.response import Response
-from rest_framework.decorators import api_view,permission_classes
-from .config import *
-import convertapi
-import os
+from rest_framework.decorators import api_view
+import PyPDF2 
 import pytesseract
-from PIL import Image, ImageEnhance, ImageFilter
-tesseract_cmd = '/usr/bin/tesseract'
+from PIL import Image
 
-convertapi.api_secret = API_SECRET
-
-
-from django.core.files.storage import default_storage
-from django.core.files.base import ContentFile
-
-mostUsedWords = []
-
-def loadWords():
-    if(len(mostUsedWords) > 0):
-        return
-    try:
-        print(os.getcwd())
-        with open('mostUsedWords.txt', 'r') as text_file:
-            data = list(text_file.read().replace('\n', ' ').split())
-            for word in data:
-                mostUsedWords.append(word)
-    except:
-        print("Couldn't Load Words")
+from .modules import loadWords, getReturnResponse
 
 @api_view(('GET',))
 def test(request):
@@ -37,79 +13,33 @@ def test(request):
 
 @api_view(('POST',))
 def stream_for_text(request):
-    loadWords()
-    req_body = request.data
-    text = req_body['text']
-    data = list(text.replace('\n', ' ').split())
-    resp = []
-    for word in data:
-        if word in mostUsedWords:    
-            resp.append({'word': word, 'factor' : 0.4}) 
-        else:
-            extra = 0
-            if(word[-1] == '.'):
-                extra = 0.2
-            if(word[-1] == ','):
-                    extra = 0.1
-            resp.append({'word': word, 'factor' : 0.5 + extra}) 
-    return Response(resp)
+    try:
+        req_body = request.data
+        text = req_body['text']
+        resp = getReturnResponse(text)
+        return Response(data=resp)
+    except:
+        return Response(data="Text could not be loaded. Invalid Request", status=400)
 
 @api_view(('POST',))
 def stream_for_pdf(request):
-    loadWords()
-    file = request.FILES['pdf']
-    file_name = default_storage.save(file.name, ContentFile(file.read()))
-    file_url = default_storage.url(file_name)
     try:
-        convertapi.convert('txt', {'File': os.getcwd() + file_url}, from_format = 'pdf').save_files('temp.txt')
-        with open('temp.txt', 'r') as text_file:
-            data = list(text_file.read().replace('\n', ' ').split())
-        default_storage.delete(file_name)
-        resp = []
-        for word in data:
-            if word in mostUsedWords:    
-                resp.append({'word': word, 'factor' : 0.4}) 
-            else:
-                extra = 0
-                if(word[-1] == '.'):
-                    extra = 0.2
-                if(word[-1] == ','):
-                    extra = 0.1
-                resp.append({'word': word, 'factor' : 0.5 + extra})
-        return Response(resp)
+        file = request.FILES['pdf']
+        pdfReader = PyPDF2.PdfFileReader(file) 
+        text = ""
+        for i in range(pdfReader.numPages):
+            text += pdfReader.getPage(i).extractText();
+        resp = getReturnResponse(text)
+        return Response(data=resp)
     except:
-        default_storage.delete(file_name)
-        return Response(data="File wasn't uploaded correctly!", status=500)
-    
+        return Response(data="Unable to extract text from the pdf!!", status=400)
 
 @api_view(('POST',))
 def stream_for_image(request):
-    loadWords()
-    file = request.FILES['image']
-    file_name = default_storage.save(file.name, ContentFile(file.read()))
-    file_url = default_storage.url(file_name)
     try:
-        img = Image.open(os.getcwd() + file_url) # the second one 
-        img = img.filter(ImageFilter.MedianFilter())
-        # enhancer = ImageEnhance.Contrast(img)
-        # img = enhancer.enhance(2)
-        # img = img.convert('1')
-        img.save('temp2.jpg')
-        data = pytesseract.image_to_string(Image.open('temp2.jpg'), lang='eng').split()
-        resp = []
-        for word in data:
-            if word in mostUsedWords:    
-                resp.append({'word': word, 'factor' : 0.4}) 
-            else:
-                extra = 0
-                if(word[-1] == '.'):
-                    extra = 0.2
-                if(word[-1] == ','):
-                    extra = 0.1
-                resp.append({'word': word, 'factor' : 0.5 + extra})
-        default_storage.delete(file_name)
-        return Response(resp)
+        file = request.FILES['image']
+        text = pytesseract.image_to_string(Image.open(file), lang='eng')
+        resp = getReturnResponse(text)
+        return Response(data=resp)
     except:
-        default_storage.delete(file_name)
-        return Response(data="File wasn't uploaded correctly!" ,status=500)
-
+        return Response(data="Unable to extract text from the image!!" ,status=400)
