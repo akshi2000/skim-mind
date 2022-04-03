@@ -4,7 +4,7 @@ asgiref==3.5.0
 autopep8==1.6.0
 billiard==3.6.4.0
 black==21.12b0
-btrfsutil==5.16.2
+btrfsutil
 ceph==1.0.0
 ceph-volume==1.0.0
 cephfs==2.0.0
