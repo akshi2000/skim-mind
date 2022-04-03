@@ -22,5 +22,6 @@ import skim_mind
 
 urlpatterns = [
     path('', include('skim_mind.urls')),
+    path('api/', include('skim_mind.urls_api')),
     path('admin/', admin.site.urls),
 ]

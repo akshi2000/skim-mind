@@ -1,0 +1,207 @@
+{% extends "main.html" %}
+{% load static %}
+{% block content %}
+
+<div class="line-main-container">
+  <div class="line-container" id="textSentence" style="width: 70%; display: none">
+    In the real world, this is achieved through methods like reading
+    passages using a finger to point your way.
+  </div>
+</div>
+
+<div class="row">
+  <div class="container-fluid">
+    <form class="wordsDisplay">
+      <div class="row justify-content-around" style="width: 100%">
+        <div class="col-md-8 col-11 vertical-align" id="words">
+          Press play button to start
+        </div>
+      </div>
+      <div class="row playerControl">
+        <div class="col-md-1 col-6" onclick="revindPlay()">
+          <img src="{% static 'rewind.svg' %}" alt="">
+        </div>
+        <div class="col-md-1 col-6">
+          <div onclick="playText()" id="playButton" style="display: block">
+            <img src="{% static 'play.svg' %}" alt="">
+          </div>
+          <div onclick="pauseText()" id="pauseButton" style="display: none">
+            <img src="{% static 'pause.svg' %}" alt="">
+          </div>
+          <audio id="myAudio" src="{% static 'relax.mp3' %}" preload="auto"></audio>
+          <div onclick="togglePlay()" id="playMusicButton" style="display: block">
+            <img src="{% static 'audio_disabled.svg' %}" alt="">
+          </div>
+          <div onclick="togglePlay()" id="pauseMusicButton" style="display: none">
+            <img src="{% static 'audio_enabled.svg' %}" alt="">
+          </div>
+        </div>
+
+        <div class="col-md-2 col-3">
+          <h6>Speed</h6>
+        </div>
+        <div class="col-md-4 col-9">
+          <input type="range" class="form-range" min="1" max="3" step="0.1" value="1" onchange="setSlider()"
+            id="slider" />
+        </div>
+        <div class="col-md-1 col-2" onclick="reduceSlider()">
+          <h5 align="center">-</h5>
+        </div>
+        <div class="col-md-1 col-2" id="sliderValue">
+          <h5 align="center">1</h5>
+        </div>
+        <div class="col-md-1 col-2" onclick="increaseSlider()">
+          <h5 align="center">+</h5>
+        </div>
+        <div class="col-md-1 col-2">
+          <div onclick="hideCaption()" id="pauseCaptionButton" style="display: none">
+            <img src="{% static 'cc_enabled.svg' %}" alt="">
+          </div>
+          <div onclick="showCaption()" id="playCaptionButton" style="display: block">
+            <img src="{% static 'cc_disabled.svg' %}" alt="">
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+<div>
+</div>
+</div>
+
+<script>
+  let data = {{ data| safe }};
+  let start = 0;
+  let point = 0;
+  let end = data.length;
+  let flag = 1;
+  let i = 0;
+  let delayTime = 1000;
+  let sliderFactor = 1;
+  let baseFactor = 200;
+  let wpm = 0;
+  let wordCount = 0;
+
+  calculateWPM();
+  function calculateWPM() {
+    let totalTime = 0;
+    for (let j = 0; j < data.length; j++) {
+      totalTime += (data[j].factor * baseFactor * (4 - sliderFactor));
+    }
+    totalTime = totalTime / 60000;
+    wpm = Math.ceil(data.length / totalTime);
+    document.getElementById("sliderValue").innerHTML =
+      '<h5 align="center">' + wpm + "</h5>";
+  }
+
+  let wordsBefore = 4;
+  let wordsAfter = 4;
+
+  const delay = ms => new Promise(res => setTimeout(res, ms));
+
+  function runText() {
+    setTimeout(function () {
+      document.getElementById("words").innerHTML = data[i].word;
+      let sentence = " ";
+      let range = Math.floor(i / 10) * 10;
+      for (let k = range; k < Math.min(end, range + 10); k++) {
+        if (k == i) {
+          sentence = sentence + "<b style='color:#00AC4F;font-size: 18px;' >" + data[k].word +
+            "</b> ";
+        } else if (k < i) {
+          sentence = sentence + "<span style='color:#959894'>" + data[k].word + "</span> ";
+        } else {
+          sentence = sentence + "<span style='color:#000000'>" + data[k].word + "</span> ";
+        }
+      }
+      document.getElementById("textSentence").innerHTML = sentence;
+      delayTime = Math.floor(
+        (data[i].factor * baseFactor * (4 - sliderFactor))
+      );
+      i++;
+      if (i < end && flag) {
+        runText();
+      }
+    }, delayTime);
+  }
+
+  async function playText() {
+    console.log("Played");
+    flag = 1;
+    document.getElementById("playButton").style.display = "none";
+    document.getElementById("pauseButton").style.display = "block";
+    runText();
+  }
+
+  function pauseText() {
+    console.log("Paused");
+    flag = 0;
+    document.getElementById("playButton").style.display = "block";
+    document.getElementById("pauseButton").style.display = "none";
+    i--;
+  }
+
+  function setSlider() {
+    sliderFactor = document.getElementById("slider").value;
+    calculateWPM();
+  }
+
+  function reduceSlider() {
+    let v = document.getElementById("slider").value;
+    if (v > 1) {
+      document.getElementById("slider").setAttribute("value", v * 1.0 - 0.1);
+      setSlider();
+    }
+  }
+
+  function increaseSlider() {
+    let v = document.getElementById("slider").value;
+    if (v < 3) {
+      document.getElementById("slider").setAttribute("value", v * 1.0 + 0.1);
+      setSlider();
+    }
+  }
+
+  function revindPlay() {
+    console.log("Back 10 words");
+    if (i > 10) {
+      i = i - 11;
+    } else {
+      i = start;
+    }
+  }
+
+  var myAudio = document.getElementById("myAudio");
+  var isPlaying = false;
+
+  function togglePlay() {
+    isPlaying ? myAudio.pause() : myAudio.play();
+  };
+
+  myAudio.onplaying = function () {
+    document.getElementById("pauseMusicButton").style.display = "block";
+    document.getElementById("playMusicButton").style.display = "none";
+    isPlaying = true;
+  };
+  myAudio.onpause = function () {
+
+    document.getElementById("pauseMusicButton").style.display = "none";
+    document.getElementById("playMusicButton").style.display = "block";
+    isPlaying = false;
+  };
+
+
+  function showCaption() {
+    document.getElementById("pauseCaptionButton").style.display = "block";
+    document.getElementById("playCaptionButton").style.display = "none";
+    document.getElementById("textSentence").style.display = "block";
+  };
+
+  function hideCaption() {
+    document.getElementById("pauseCaptionButton").style.display = "none";
+    document.getElementById("playCaptionButton").style.display = "block";
+    document.getElementById("textSentence").style.display = "none";
+  };
+</script>
+
+{% endblock %}
