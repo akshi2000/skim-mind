@@ -34,12 +34,12 @@ def stream_for_pdf(request):
         return render(request, 'index.html')
 
 def stream_for_image(request):
-    try:
-        file = request.FILES['image']
-        text = pytesseract.image_to_string(Image.open(file), lang='eng')
-        resp = getReturnResponse(text)
-        return render(request, 'player.html', context={"data": resp}) 
-    except:
-        return render(request, 'index.html')
+    # try:
+    file = request.FILES['image']
+    text = pytesseract.image_to_string(Image.open(file), lang='eng')
+    resp = getReturnResponse(text)
+    return render(request, 'player.html', context={"data": resp}) 
+    # except:
+    #     return render(request, 'index.html')
 
         
